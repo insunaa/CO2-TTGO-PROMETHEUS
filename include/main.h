@@ -34,13 +34,14 @@ enum States
 };
 #define ST_MAX ST_CALIBRATION // roll-over when switching through modes
 
-constexpr static const char* co2help  = "# HELP air_co2 Relative Concentration of CO2 (CntR) in ppm.\n# TYPE air_co2 gauge\n";
-constexpr static const char* temphelp = "# HELP air_temp Ambient Temperature (Tamb) in ℃.\n# TYPE air_temp gauge\n";
-constexpr static const char* humhelp  = "# HELP air_hum Relative Humidity\n# TYPE air_hum gauge\n";
-static const fmt::format_string<std::string, std::string, std::string> formatStr { "{}\n{}\n{}" };
-static const fmt::format_string<const char*, int>   co2Fmt { "{}air_co2 {}" };
-static const fmt::format_string<const char*, float> tmpFmt { "{}air_temp {}" };
-static const fmt::format_string<const char*, float> humFmt { "{}air_hum {}" };
+static constexpr std::string_view co2help   { "# HELP air_co2 Relative Concentration of CO2 (CntR) in ppm.\n# TYPE air_co2 gauge\n" };
+static constexpr std::string_view temphelp  { "# HELP air_temp Ambient Temperature (Tamb) in ℃.\n# TYPE air_temp gauge\n" };
+static constexpr std::string_view humhelp   { "# HELP air_hum Relative Humidity\n# TYPE air_hum gauge\n" };
+
+static constexpr std::string_view formatStr { "{:s}\n{:s}\n{:s}\n"  };
+static constexpr std::string_view co2Fmt    { "{:s}air_co2 {:d}"    };
+static constexpr std::string_view tmpFmt    { "{:s}air_temp {:.1f}" };
+static constexpr std::string_view humFmt    { "{:s}air_hum {:.1f}"  };
 
 struct sensor_data_struct
 {
