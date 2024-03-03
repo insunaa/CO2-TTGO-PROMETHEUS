@@ -143,7 +143,7 @@ void MqttClient2::callback(char *topic, byte *payload, unsigned int length)
   Serial.println();
 
   // Deserialize the JSON document
-  StaticJsonDocument<256> doc;
+  JsonDocument doc;
   DeserializationError error = deserializeJson(doc, payload, length);
 
   // Test if parsing succeeds.

@@ -108,9 +108,9 @@ void myDisplay::Gui1(sensor_data_struct sData)
 
   myTFT.setTextDatum(BL_DATUM);
   myTFT.setTextColor(TFT_WHITE, TFT_BLACK);
-
+#ifdef WAITFORWIFI
   wfiSignal(200, 30, 18, sData.rssiLevel); // x=100, y=100, max=22
-
+#endif
   myTFT.drawString(sData.timeOfDayChar, 10, 35, 4);
   // myTFT.drawString(sData.dateChar, 140, 35, 4);
 

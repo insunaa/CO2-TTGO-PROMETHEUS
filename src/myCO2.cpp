@@ -140,8 +140,10 @@ void myCO2::calibrateStart(void)
   calibrateStartTime = millis();
 
   // DEBUG mhz19b.autoCalibration(false); // make sure auto calibration is off
+  mhz19b.autoCalibration(false);
   Serial.print("ABC Status: ");
   // DEBUG mhz19b.getABC() ? Serial.println("ON") : Serial.println("OFF"); // now print it's status
+  mhz19b.getABC() ? Serial.println("ON") : Serial.println("OFF"); // now print it's status
 
   Serial.println("Waiting 20 minutes to stabalise...");
   strcpy(statusChar, "CO2-Kalibrierung gestartet");

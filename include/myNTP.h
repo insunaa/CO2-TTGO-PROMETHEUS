@@ -9,6 +9,7 @@
 #ifndef MYNTP_h
 #define MYNTP_h
 
+#include "time.h"
 #include "Arduino.h"
 
 /* Configuration of NTP */

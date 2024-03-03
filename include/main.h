@@ -6,6 +6,7 @@
 
 // https://github.com/Locoduino/RingBuffer
 
+#include <fmt/core.h>
 #include "Arduino.h"
 #include "user_config.h"
 #include <RingBuf.h>
@@ -33,6 +34,14 @@ enum States
 };
 #define ST_MAX ST_CALIBRATION // roll-over when switching through modes
 
+constexpr static const char* co2help  = "# HELP air_co2 Relative Concentration of CO2 (CntR) in ppm.\n# TYPE air_co2 gauge\n";
+constexpr static const char* temphelp = "# HELP air_temp Ambient Temperature (Tamb) in ℃.\n# TYPE air_temp gauge\n";
+constexpr static const char* humhelp  = "# HELP air_hum Relative Humidity\n# TYPE air_hum gauge\n";
+static const fmt::format_string<std::string, std::string, std::string> formatStr { "{}\n{}\n{}" };
+static const fmt::format_string<const char*, int>   co2Fmt { "{}air_co2 {}" };
+static const fmt::format_string<const char*, float> tmpFmt { "{}air_temp {}" };
+static const fmt::format_string<const char*, float> humFmt { "{}air_hum {}" };
+
 struct sensor_data_struct
 {
   char tempChar[20];
@@ -54,6 +63,14 @@ struct sensor_data_struct
   char owIDChar[20];    // 1 Wire ID
   RingBuf<int, 230> myCo2Buffer;
   RingBuf<int, 230> myTempBuffer;
+
+  inline std::string getPrometheusString()
+  {
+    return fmt::format(formatStr,
+           fmt::format(co2Fmt, co2help, co2_ppm),
+           fmt::format(tmpFmt, temphelp, temperature),
+           fmt::format(humFmt, humhelp, humidity));
+  }
 };
 
 void setup_wifi(void);

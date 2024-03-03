@@ -28,7 +28,7 @@ myDHT myDHT22;
 
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <AsyncElegantOTA.h>
+//#include <AsyncElegantOTA.h>
 AsyncWebServer server(80);
 
 #include <ArduinoJson.h>
@@ -53,6 +53,7 @@ char statusChar[50];
 
 long lastMsg = 0;
 long lastMsgCo2 = 0;
+long lastMsgCal = 0;
 char msg[100];
 int value = 0;
 sensor_data_struct sensorData;
@@ -156,8 +157,10 @@ void handleEvent(AceButton *button, uint8_t eventType, uint8_t buttonState)
     }
     else if (butPressed == BUTTON2_PIN)
     {
-      Serial.printf("handleEvent> GUI for pin %d\n", butPressed);
-      switch_mode(mode - 1);
+      //Serial.printf("handleEvent> GUI for pin %d\n", butPressed);
+      //switch_mode(mode - 1);
+      myCO2Sensor.calibrateStart();
+      mode = ST_CALIBRATION;
     }
     break;
   default:
@@ -186,17 +189,20 @@ void setup()
   myCO2Sensor.status(statusChar);
   myDisplay1.println(statusChar);
 
+#ifdef WAITFORWIFI
   myDisplay1.print("> WiFi ");
   delay(10);
   setup_wifi();
+#endif
 
-  myMqttClient2.begin(MQTT_HOST, MQTT_PORT); // include/defined in user_config_override.h
-  myMqttClient2.setDeviceName(MQTT_DEVICENAME);
+//  myMqttClient2.begin(MQTT_HOST, MQTT_PORT); // include/defined in user_config_override.h
+//  myMqttClient2.setDeviceName(MQTT_DEVICENAME);
 
   setup_button();
-
+#ifdef WAITFORWIFI
   myDisplay1.print("> NTP ");
   myNtp.begin();
+#endif
 
   myDisplay1.println("> setup complete");
   Serial.println("> setup complete.");
@@ -221,10 +227,12 @@ void setup_wifi()
     delay(500);
   }
 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-            { request->send(200, "text/plain", "Hi! I am ESP32."); });
+  server.on("/metrics", HTTP_GET, [](AsyncWebServerRequest *request)
+            { 
+              request->send(200, "text/plain; version=0.0.4; charset=utf-8", sensorData.getPrometheusString().c_str());
+            });
 
-  AsyncElegantOTA.begin(&server); // Start ElegantOTA
+  //AsyncElegantOTA.begin(&server); // Start ElegantOTA
   server.begin();
   Serial.println("HTTP server started");
 
@@ -360,6 +368,15 @@ void displayLoop(void)
 */
   if (mode != oldMode)
   {
+#ifndef WAITFORWIFI
+    if (mode == ST_GUI_5)
+    {
+      if (mode > oldMode)
+        mode = ST_GUI_1;
+      else
+        mode = ST_GUI_4;
+    }
+#endif
     myDisplay1.clear();
     oldMode = mode;
     displayUpdate = true;
@@ -398,6 +415,8 @@ void displayLoop(void)
       Serial.print("caliTime: ");
       Serial.println(caliTime);
       myDisplay1.GuiCalibration(caliTime); // gauge design test
+      if (caliTime <= 0)
+        switch_mode(ST_GUI_1);
       break;                               // default:
       // myDisplay1.Text(co2simChar, tempChar);
     }
@@ -446,20 +465,29 @@ int dBmtoPercentage(int dBm)
 void pullData_loop()
 {
   long now = millis();
+  if (mode == ST_CALIBRATION)
+  {
+    if (now - lastMsgCal > 1000)
+    {
+      displayUpdate = true;
+      lastMsgCal = millis();
+      return;
+    }
+  }
   if (now - lastMsgCo2 > LOOP_SECONDS_DATA * 1000)
   {
 
     myCO2Sensor.loop(&sensorData); // every 10sec read val, every 30s reconnect
-    myMqttClient2.publishCO2(sensorData.co2Char);
+    //myMqttClient2.publishCO2(sensorData.co2Char);
     displayDebugPrint("> CO2: ");
     displayDebugPrintln(sensorData.co2Char);
 
     myDHT22.loop(&sensorData.temperature, sensorData.tempChar, &sensorData.humidity, sensorData.humiChar); // every 10sec read val
-    myMqttClient2.publishTemp(sensorData.tempChar);
+    //myMqttClient2.publishTemp(sensorData.tempChar);
     displayDebugPrint("DHT22 temp: ");
     displayDebugPrint(sensorData.tempChar);
 
-    myMqttClient2.publishHumi(sensorData.humiChar);
+    //myMqttClient2.publishHumi(sensorData.humiChar);
     displayDebugPrint(" / humi: ");
     displayDebugPrintln(sensorData.humiChar);
 
@@ -483,16 +511,17 @@ void pullData_loop()
 // ----------------------------------------------------------------------------------------
 void loop()
 {
-
+#ifdef WAITFORWIFI
   if (wifiMulti.run() != WL_CONNECTED)
   {
     setup_wifi();
   }
+#endif
 
   pullData_loop(); // retrieve update form sensors every 20 seconds
 
-  myMqttClient2.loop(); // client.loop(); + reconnect if required
-  mqttcmd_loop();       // fetch + process data for subsribed mqtt topics
+//  myMqttClient2.loop(); // client.loop(); + reconnect if required
+//  mqttcmd_loop();       // fetch + process data for subsribed mqtt topics
   // AsyncElegantOTA.loop();
 
   button1.check();
