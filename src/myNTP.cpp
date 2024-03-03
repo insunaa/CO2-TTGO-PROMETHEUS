@@ -30,7 +30,7 @@ bool myNTP::begin(void)
   configTzTime("CET-1CEST,M3.5.0/02,M10.5.0/03", ntpServer[1]); // deinen NTP Server einstellen (von 0 - 5 aus obiger Liste)
   if (!getLocalTime(&tm))
   {
-    Serial.println("NTP> Zeit konnte nicht geholt werden\n");
+    Serial.println("NTP> Time could not be fetched\n");
     error = true;
   }
   else

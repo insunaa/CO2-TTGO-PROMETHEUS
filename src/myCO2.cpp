@@ -15,7 +15,7 @@ myCO2::myCO2(void)
 {
   sensorFound = false;
   co2_ser = 0;
-  strcpy(statusChar, "myCO2 classs constructor");
+  strcpy(statusChar, "MH-Z19 class initialized");
 } // end of function
 
 // ------------------------------------------------------------------------------------------------------------------------
@@ -32,7 +32,7 @@ void myCO2::begin(char *cValue)
   Serial.println("--------------------");
   if (mhz19_version[0] == '\0')
   {
-    strcpy(statusChar, "ERR MH-Z19B nicht gefunden");
+    strcpy(statusChar, "ERR MH-Z19B not found");
     sensorFound = false;
     Serial.println(statusChar);
   }
@@ -48,10 +48,10 @@ void myCO2::begin(char *cValue)
       if (i == 1)
         Serial.print(".");
     }
-    Serial.print("\nMH-Z19B Messbereich: ");
+    Serial.print("\nMH-Z19B Measuring Range: ");
     Serial.println(mhz19b.getRange());
-    Serial.print("MH-Z19B Autokalibrierung (ABC): ");
-    mhz19b.getABC() ? Serial.println("AN") : Serial.println("AUS");
+    Serial.print("MH-Z19B Auto-calibration(ABC): ");
+    mhz19b.getABC() ? Serial.println("ON") : Serial.println("OFF");
   }
   Serial.println("--------------------");
 
@@ -85,7 +85,7 @@ void myCO2::loop(sensor_data_struct *sData)
         Serial.print(" / temp ");
         temp_mh = mhz19b.getTemperature();
         Serial.println(temp_mh);
-        strcpy(statusChar, "CO2-Sensor gelesen");
+        strcpy(statusChar, "CO2-Sensor read out");
       }
       else // calibration is running
       {
@@ -145,8 +145,8 @@ void myCO2::calibrateStart(void)
   // DEBUG mhz19b.getABC() ? Serial.println("ON") : Serial.println("OFF"); // now print it's status
   mhz19b.getABC() ? Serial.println("ON") : Serial.println("OFF"); // now print it's status
 
-  Serial.println("Waiting 20 minutes to stabalise...");
-  strcpy(statusChar, "CO2-Kalibrierung gestartet");
+  //Serial.println("Waiting 20 minutes to stabalise...");
+  strcpy(statusChar, "CO2-Calibration started");
   mhz19bCalibration = true;
 } // end of function
 
@@ -170,7 +170,7 @@ long myCO2::calibrateTimer(void)
     calibrateRemainTime = -1;
   }
 
-  strcpy(statusChar, "CO2-Sensor gelesen");
+  strcpy(statusChar, "CO2-Sensor read out");
   return (calibrateRemainTime);
 } // end of function
 
@@ -179,7 +179,7 @@ void myCO2::calibrateEnd(void)
 {
   Serial.println("Calibrating..");
   // DEBUG mhz19b.calibrate(); // Take a reading which be used as the zero point for 400 ppm
-  strcpy(statusChar, "CO2-Kalibrierung fertig");
+  strcpy(statusChar, "CO2-calibration done");
   mhz19bCalibration = false;
 } // end of function
 

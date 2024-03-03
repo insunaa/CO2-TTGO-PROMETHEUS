@@ -18,7 +18,7 @@ myOneWire::myOneWire(void)
   temp_ds = 0;
   intervalLoop = LOOP_SECONDS * 1000;
   intervalScanDevice = SCAN_SECONDS * 1000;
-  strcpy(statusChar, "myOneWire classs constructor");
+  strcpy(statusChar, "OneWire class initialized");
   // return error;
 } // end of function
 
@@ -32,16 +32,16 @@ bool myOneWire::begin(void)
   // ROM-Adresse (ID) des DS18B20 ermitteln und anzeigen
   if (!ow.search(ds18b20_id))
   {
-    strcpy(statusChar, "ERR DS18B20-Sensor nicht gefunden");
+    strcpy(statusChar, "ERR DS18B20-Sensor not found");
     Serial.println(statusChar);
     sensorFound = false;
     error = true;
   }
   else
   {
-    strcpy(statusChar, "DS18B20-Sensor gefunden");
+    strcpy(statusChar, "DS18B20-Sensor fouznd");
     sensorFound = true;
-    Serial.print("DS18B20 ID (Sensor-Adresse):");
+    Serial.print("DS18B20 ID (Sensor-Address):");
     // Adress-Bytes als Hexadezimalwerte ausgeben
     for (i = 0; i < sizeof(DeviceAddress); i++)
     {
@@ -65,7 +65,7 @@ void myOneWire::loop(void)
     {
       ds18b20.requestTemperatures(); // DS18B20-Abfrage starten
       temp_ds = ds18b20.getTempC(ds18b20_id);
-      strcpy(statusChar, "DS18B20-Sensor gelesen");
+      strcpy(statusChar, "DS18B20-Sensor read out");
     }
     previousMillis = millis();
   } // end of timer

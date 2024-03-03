@@ -15,7 +15,7 @@ DHT dht;
 myDHT::myDHT(void)
 {
   begin();
-  strcpy(statusChar, "myDHT classs constructor");
+  strcpy(statusChar, "DHT class initialized");
 } // end of function
 
 // ------------------------------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ void myDHT::loop(float *temp, char *cValueTemp, float *humi, char *cValueHumi)
       dtostrf(humi_dht, 2, 0, cValueHumi); // 5 digits, no decimal
       *temp = temp_dht;
       dtostrf(temp_dht, 5, 1, cValueTemp); // 5 digits, no decimal
-      strcpy(statusChar, "DHT22-Sensor gelesen");
+      strcpy(statusChar, "DHT22-Sensor read out");
       // }
     } else
     {
