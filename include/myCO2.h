@@ -15,15 +15,16 @@
 #define LOOP_SECONDS_CO2 10
 #define SCAN_SECONDS_CO2 30
 #define CALIBRATE_SECONDS 40 // timeElapse = 12e5; //  20 minutes in milliseconds
-
 // Nutzung der Schnittstelle UART2
-#define RX2 26 //16 is used for OLED_RST !
-#define TX2 27
-
-#define MHZ19_BAUDRATE 9600
-#define MHZ19_PROTOCOL SERIAL_8N1
-#define MHZ19_RANGE 5000 // Obergrenze des Messbereichs des Sensors
-#define MHZ19_PWM_PIN 5
+enum
+{
+  RX2 = 26,
+  TX2 = 27,
+  MHZ19_BAUDRATE = 9600,
+  MHZ19_PROTOCOL = SERIAL_8N1,
+  MHZ19_RANGE = 5000,
+  MHZ19_PWM_PIN = 5,
+};
 
 class myCO2 // define class
 {

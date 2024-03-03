@@ -12,7 +12,11 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-#define DS18B20_PIN 18 // GPIO-Pin für Daten des DS18B20
+enum
+{
+  DS18B20_PIN = 18, // GPIO-Pin für Daten des DS18B20
+};
+
 #define LOOP_SECONDS 10
 #define SCAN_SECONDS 30
 

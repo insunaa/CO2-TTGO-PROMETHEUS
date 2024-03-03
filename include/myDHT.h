@@ -2,12 +2,15 @@
 #define MYDHT_h
 
 #include "DHT.h"
-#define DHTPIN 25 // Digital pin connected to the DHT sensor
 
-// Uncomment whatever type you're using!
-//#define DHTTYPE DHT11   // DHT 11
-#define DHTTYPE DHT22 // DHT 22  (AM2302), AM2321
-//#define DHTTYPE DHT21   // DHT 21 (AM2301
+enum
+{
+  DHTPIN = 25, // Digital pin connected to the DHT sensor
+  // Uncomment whatever type you're using!
+  // DHTTYPE = DHT::DHT11,
+  DHTTYPE = DHT::DHT22,
+  // DHTTYPE = DHT::DHT21,
+};
 
 // Connect pin 1 (on the left) of the sensor to +5V
 // NOTE: If using a board with 3.3V logic like an Arduino Due connect pin 1
