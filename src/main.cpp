@@ -68,7 +68,7 @@ unsigned int arc_colour = TFT_BLUE;
 
 bool displayUpdate = false;
 
-int mode = 0, oldMode = 0; // based on state
+States mode = States::ST_BOOT, oldMode = States::ST_BOOT; // based on state
 unsigned long previousMillis = 0, previousMillisRssi = 0, intervalRssiLoop = 10000;
 const int RSSI_MAX = -50;  // define maximum strength of signal in dBm
 const int RSSI_MIN = -100; // define minimum strength of signal in dBm
@@ -113,12 +113,12 @@ void setup_button()
 } // end of function
 
 // ----------------------------------------------------------------------------------------
-void switch_mode(int reqMode)
+void switch_mode(States reqMode)
 {
-  if (reqMode > ST_GUI_6)
-    reqMode = ST_GUI_1;
-  else if (reqMode < ST_GUI_1)
-    reqMode = ST_GUI_6;
+  if (reqMode > States::ST_GUI_6)
+    reqMode = States::ST_GUI_1;
+  else if (reqMode < States::ST_GUI_1)
+    reqMode = States::ST_GUI_6;
 
   Serial.printf("switch_mode>  old=%d new=%d \n", mode, reqMode);
   mode = reqMode;
@@ -148,14 +148,14 @@ void handleEvent(AceButton *button, uint8_t eventType, uint8_t buttonState)
     if (butPressed == BUTTON1_PIN)
     {
       Serial.printf("handleEvent> GUI for pin %d\n", butPressed);
-      switch_mode(mode + 1);
+      switch_mode(static_cast<States>(static_cast<int>(mode) + 1));
     }
     else if (butPressed == BUTTON2_PIN)
     {
       //Serial.printf("handleEvent> GUI for pin %d\n", butPressed);
       //switch_mode(mode - 1);
       myCO2Sensor.calibrateStart();
-      mode = ST_CALIBRATION;
+      mode = States::ST_CALIBRATION;
     }
     break;
   default:
@@ -199,7 +199,7 @@ void setup()
   myDisplay1.println("> setup complete");
   Serial.println("> setup complete.");
   delay(500);
-  mode = ST_GUI_1;
+  mode = States::ST_GUI_1;
   displayReset();
 } // end of function
 
@@ -243,7 +243,7 @@ void setup_wifi()
 // ----------------------------------------------------------------------------------------
 void displayDebugPrint(const char *message)
 {
-  if (1 > mode)
+  if (States::ST_GUI_1 > mode)
     myDisplay1.print(message);
   Serial.print(message);
 } // end of function
@@ -251,7 +251,7 @@ void displayDebugPrint(const char *message)
 // ----------------------------------------------------------------------------------------
 void displayDebugPrintln(const char *message)
 {
-  if (1 > mode)
+  if (States::ST_GUI_1 > mode)
     myDisplay1.println(message);
   Serial.println(message);
 } // end of function
@@ -293,37 +293,37 @@ void displayLoop(void)
   {
     switch (mode)
     {
-    case ST_GUI_1:                 // 3
+    case States::ST_GUI_1:                 // 3
       myDisplay1.Gui1(sensorData); // text
       break;
-    case ST_GUI_2: // 4
+    case States::ST_GUI_2: // 4
       myDisplay1.clear();
       myDisplay1.Gui2(sensorData); // gauge left/right
       break;
-    case ST_GUI_3:                 // 5 boot mode
+    case States::ST_GUI_3:                 // 5 boot mode
       myDisplay1.Gui3(sensorData); // wifi signal
       break;
-    case ST_GUI_4: // 6 boot mode
+    case States::ST_GUI_4: // 6 boot mode
       myDisplay1.clear();
       myDisplay1.Gui4(0, 3000, sensorData.co2_ppm, sensorData);
       Serial.print("> GUI4: ");
       Serial.println(sensorData.co2_ppm);
       // myDisplay1.Gui7(arc_x, arc_y, arc_sa, arc_sc, arc_rx, arc_ry, arc_w, arc_colour); // gauge design test
       break;
-    case ST_GUI_5:                 // 5 Admin
+    case States::ST_GUI_5:                 // 5 Admin
       myDisplay1.Gui5(sensorData); // wifi signal
       break;
-    case ST_GUI_6:                 // 5 Trend Graph
+    case States::ST_GUI_6:                 // 5 Trend Graph
       myDisplay1.Gui6(sensorData); // wifi signal
       break;
-    case ST_CALIBRATION: // 6 boot mode
+    case States::ST_CALIBRATION: // 6 boot mode
       myDisplay1.clear();
       int caliTime = myCO2Sensor.calibrateTimer();
       Serial.print("caliTime: ");
       Serial.println(caliTime);
       myDisplay1.GuiCalibration(caliTime); // gauge design test
       if (caliTime <= 0)
-        switch_mode(ST_GUI_1);
+        switch_mode(States::ST_GUI_1);
       break;                               // default:
       // myDisplay1.Text(co2simChar, tempChar);
     }
@@ -371,13 +371,12 @@ int dBmtoPercentage(int dBm)
 void pullData_loop()
 {
   long now = millis();
-  if (mode == ST_CALIBRATION)
+  if (mode == States::ST_CALIBRATION)
   {
     if (now - lastMsgCal > 1000)
     {
       displayUpdate = true;
       lastMsgCal = millis();
-      return;
     }
   }
   if (now - lastMsgCo2 > LOOP_SECONDS_DATA * 1000)

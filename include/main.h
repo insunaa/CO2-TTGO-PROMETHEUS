@@ -11,17 +11,15 @@
 #include "user_config.h"
 #include <RingBuf.h>
 
-#define ADC_EN 14 //ADC_EN is the ADC detection enable port
-#define ADC_PIN 34
-
-/*
-#define BUTTON_1 35 //
-#define BUTTON_2 0  //
-*/
+enum
+{
+  ADC_EN = 14, //ADC_EN is the ADC detection enable port
+  ADC_PIN = 34,
+};
 
 #define LOOP_SECONDS_DATA 20
 
-enum States
+enum class States : int
 {
   ST_BOOT,        // 0 pure text
   ST_GUI_1,       // 1 Time/WLAN -- CO2 -- Temp/Humi
@@ -32,7 +30,7 @@ enum States
   ST_GUI_6,       // 6 Trend Graph
   ST_CALIBRATION, // 6 Calibration incl. Count Down
 };
-#define ST_MAX ST_CALIBRATION // roll-over when switching through modes
+#define ST_MAX States::ST_CALIBRATION // roll-over when switching through modes
 
 static constexpr std::string_view co2help   { "# HELP air_co2 Relative Concentration of CO2 (CntR) in ppm.\n# TYPE air_co2 gauge\n" };
 static constexpr std::string_view temphelp  { "# HELP air_temp Ambient Temperature (Tamb) in ℃.\n# TYPE air_temp gauge\n" };
