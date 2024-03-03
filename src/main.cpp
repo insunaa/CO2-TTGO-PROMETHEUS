@@ -219,7 +219,7 @@ void setup_wifi()
     delay(500);
   }
 
-  server.on("/metrics", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on(PROMETHEUS_PATH, HTTP_GET, [](AsyncWebServerRequest *request)
             { 
               request->send(200, "text/plain; version=0.0.4; charset=utf-8", sensorData.getPrometheusString().c_str());
             });
