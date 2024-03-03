@@ -1,12 +1,8 @@
-# CO2 Sensor on TTGO with MQTT
+# CO2 Sensor on TTGO with Prometheus
 
 This is a project for measuring CO2 concentration as well as humidity and temperature. Different GUI modes are available.
 
 In order to reduce the number of wires and required soldering, this sensor is using the TTGO module.
-
-The module is connected via MQTT to the home automation solution.
-A nice user interface is achieved via NoreRED running on a raspberry pi also connected via MQTT.
-In addition you can control the Sensor module since it is subscribing to a specific topic.
 
 ## User Interface
 
@@ -93,15 +89,6 @@ The DHT22 is measuring both while using only one wire for data submission. As an
 
 <br><br>
 
-## MQTT
-
-The name of this device is defined in include/user_config.h.
-This name is used as client-ID for MQTT.
-Be aware that the name / client-ID must be unique in your local network.
-Default name: "TTGO-1"
-
-For the time being, the MQTT username and password are ignored.
-
 ### Topics
 
 - tele/\<name\>/... ?
@@ -130,7 +117,7 @@ Copy the files from
 | Settings                | From                                  | To                                        | Reason                                                                                            |
 | :---------------------- | :------------------------------------ | :---------------------------------------- | :------------------------------------------------------------------------------------------------ |
 | TFT Driver              | README\TFT_eSPI                       | .pio\libdeps\TTGO-MQTT-lora32-v1\TFT_eSPI | You need to select the correct TFT driver in the library, otherwise the screen will just be black |
-| WLAN + MQTT Credentials | include\user_config_override_sample.h | included\user_config_override.h           | Modify this to match your credentials.                                                            |
+| WIFI + Prometheus Path  | include\user_config_override_sample.h | included\user_config_override.h           | Modify this to match your credentials.                                                            |
 
 ## ToDo
 
