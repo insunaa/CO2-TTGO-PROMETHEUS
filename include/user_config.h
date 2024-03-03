@@ -11,20 +11,12 @@
 #define STA_PASS1 "" // [Password1] Wifi password
 
 // -- Setup your own MQTT settings  ---------------
-#undef MQTT_HOST
-#define MQTT_HOST "" // [MqttHost]
 
-#undef MQTT_PORT
-#define MQTT_PORT 1883 // [MqttPort] MQTT port (10123 on CloudMQTT)
+#undef PROMETHEUS_PATH
+#define PROMETHEUS_PATH "/metrics"
 
-#undef MQTT_USER
-#define MQTT_USER "" // [MqttUser] Optional user
-
-#undef MQTT_PASS
-#define MQTT_PASS "" // [MqttPassword] Optional password
-
-#undef MQTT_DEVICENAME
-#define MQTT_DEVICENAME "TTGO_1234"
+#undef WAITFORWIFI
+#define WAITFORWIFI 1
 
 #ifdef USE_CONFIG_OVERRIDE
   #include "user_config_override.h" // Configuration overrides for my_user_config.h

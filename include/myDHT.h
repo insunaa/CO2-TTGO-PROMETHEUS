@@ -1,11 +1,3 @@
-/*
-  myXmodule.h - Library for mqtt client
-
-  inject two lines in main.cpp
-    #include <myXmodule.h>
-    myXmodule myXmodule1;
-
-*/
 #ifndef MYDHT_h
 #define MYDHT_h
 

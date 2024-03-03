@@ -43,10 +43,6 @@ myCO2 myCO2Sensor;
 myNTP myNtp;
 unsigned long lastNtp = 0;
 
-#include "myMqttClient.h"
-MqttClient2 myMqttClient2;
-int jsonCountOld = 0;
-
 #include "myDisplay.h"
 myDisplay myDisplay1;
 char statusChar[50];
@@ -70,7 +66,6 @@ sensor_data_struct sensorData;
 int arc_x = 120, arc_y = 65, arc_sa = 45, arc_sc = 30, arc_rx = 50, arc_ry = 30, arc_w = 10;
 unsigned int arc_colour = TFT_BLUE;
 
-bool mqttUpdate = false;
 bool displayUpdate = false;
 
 int mode = 0, oldMode = 0; // based on state
@@ -195,9 +190,6 @@ void setup()
   setup_wifi();
 #endif
 
-//  myMqttClient2.begin(MQTT_HOST, MQTT_PORT); // include/defined in user_config_override.h
-//  myMqttClient2.setDeviceName(MQTT_DEVICENAME);
-
   setup_button();
 #ifdef WAITFORWIFI
   myDisplay1.print("> NTP ");
@@ -249,90 +241,6 @@ void setup_wifi()
 } // end of function
 
 // ----------------------------------------------------------------------------------------
-// check which command has been received and assign value
-void mqttcmd_read(char name[], int value)
-{
-  if (!strcmp(name, "arc_x"))
-  {
-    arc_x = value;
-    Serial.print("arc_x : ");
-    Serial.println(value);
-  }
-
-  if (!strcmp(name, "arc_y"))
-  {
-    arc_y = value;
-    Serial.print("arc_y : ");
-    Serial.println(value);
-  }
-
-  if (!strcmp(name, "arc_sa"))
-    arc_sa = value;
-  if (!strcmp(name, "arc_sc"))
-    arc_sc = value;
-
-  if (!strcmp(name, "arc_rx"))
-    arc_rx = value;
-  if (!strcmp(name, "arc_ry"))
-    arc_ry = value;
-
-  if (!strcmp(name, "arc_w"))
-    arc_w = value;
-  if (!strcmp(name, "arc_colour"))
-    arc_colour = value;
-
-  if (!strcmp(name, "mode"))
-    mode = value;
-
-  if (!strcmp(name, "update"))
-    mqttUpdate = true;
-
-  if (!strcmp(name, "co2sim"))
-  {
-    sensorData.co2sim = value;
-    dtostrf(sensorData.co2sim, 1, 0, sensorData.co2simChar);
-  }
-
-  if (!strcmp(name, "calibrate"))
-  {
-    myCO2Sensor.calibrateStart();
-    mode = ST_CALIBRATION;
-    mqttUpdate = true;
-  }
-
-  // displayDebugPrintln("mqttupdate");
-  mqttUpdate = true;
-  displayUpdate = true;
-} // end of function
-
-// ----------------------------------------------------------------------------------------
-// retrieve last message for subscribed topics
-void mqttcmd_loop()
-{
-  json_cmnd_struct jsonCmnd = myMqttClient2.command();
-  if (jsonCmnd.count != jsonCountOld)
-  {
-    jsonCountOld = jsonCmnd.count;
-    Serial.print("MAIN json # ");
-    Serial.print(jsonCmnd.count);
-    Serial.print(" > ");
-    Serial.print(jsonCmnd.name);
-    Serial.print(" : ");
-    Serial.print(jsonCmnd.value);
-    Serial.println(" < ");
-    mqttcmd_read(jsonCmnd.name, jsonCmnd.value);        // do something whith the cmnd
-    myMqttClient2.publishStat("result", jsonCmnd.name); // moduel to proivde feedback than mqtt cmnd has been processed
-    displayDebugPrint("mqtt> ");
-    displayDebugPrint(jsonCmnd.name);
-    displayDebugPrint(" / ");
-    char PufferChar1[20];
-    dtostrf(jsonCmnd.value, 1, 0, PufferChar1);
-    displayDebugPrintln(PufferChar1);
-  }
-
-} // end of function
-
-// ----------------------------------------------------------------------------------------
 void displayDebugPrint(const char *message)
 {
   if (1 > mode)
@@ -352,7 +260,6 @@ void displayDebugPrintln(const char *message)
 void displayReset(void)
 {
   myDisplay1.clear();
-  mqttUpdate = true;
   displayUpdate = true;
 } // end of function
 // ---------------------------------------------------------------------------------------
@@ -420,7 +327,6 @@ void displayLoop(void)
       break;                               // default:
       // myDisplay1.Text(co2simChar, tempChar);
     }
-    mqttUpdate = false;
     displayUpdate = false;
   }
 
@@ -478,16 +384,13 @@ void pullData_loop()
   {
 
     myCO2Sensor.loop(&sensorData); // every 10sec read val, every 30s reconnect
-    //myMqttClient2.publishCO2(sensorData.co2Char);
     displayDebugPrint("> CO2: ");
     displayDebugPrintln(sensorData.co2Char);
 
     myDHT22.loop(&sensorData.temperature, sensorData.tempChar, &sensorData.humidity, sensorData.humiChar); // every 10sec read val
-    //myMqttClient2.publishTemp(sensorData.tempChar);
     displayDebugPrint("DHT22 temp: ");
     displayDebugPrint(sensorData.tempChar);
 
-    //myMqttClient2.publishHumi(sensorData.humiChar);
     displayDebugPrint(" / humi: ");
     displayDebugPrintln(sensorData.humiChar);
 
@@ -497,10 +400,12 @@ void pullData_loop()
     displayDebugPrint("  / date: ");
     displayDebugPrintln(sensorData.dateChar);
 
+#ifdef WAITFORWIFI
     displayDebugPrint("> Wifi.RSSI: ");
     sensorData.rssiLevel = dBmtoPercentage(WiFi.RSSI());
     dtostrf(sensorData.rssiLevel, 1, 0, sensorData.rssiChar); // 5 digits, no decimal
     displayDebugPrintln(sensorData.rssiChar);                 // Signal strength in %
+#endif
 
     displayUpdate = true;
     lastMsgCo2 = millis();
@@ -520,14 +425,12 @@ void loop()
 
   pullData_loop(); // retrieve update form sensors every 20 seconds
 
-//  myMqttClient2.loop(); // client.loop(); + reconnect if required
-//  mqttcmd_loop();       // fetch + process data for subsribed mqtt topics
   // AsyncElegantOTA.loop();
 
   button1.check();
   button2.check();
 
-  displayLoop(); // mqtt of button may demand to change GUI
+  displayLoop();
 
   yield();
 } // end of function
