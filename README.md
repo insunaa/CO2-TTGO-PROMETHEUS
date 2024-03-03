@@ -48,10 +48,6 @@ Settings for this GUI: mode = 6
 
 Settings for this GUI: mode = 0
 
-### NodeRED
-
-![GitHub Logo](README/images/TTGO-NodeRED.png)
-
 ## CO2 Sensor / MHZ19B
 
 Two good German resources which helped me to get started:
@@ -86,27 +82,6 @@ The DHT22 is measuring both while using only one wire for data submission. As an
 | 25      | GPIO25   | DATA       |
 | GND     | GND      | GND        |
 | 3V3     | Vcc      | Vcc        |
-
-<br><br>
-
-### Topics
-
-- tele/\<name\>/... ?
-- tele/TTGO-1/CO2
-- tele/TTGO-1/info
-- tele/TTGO-1/temp
-- tele/TTGO-1/humi
-- stat/TTGO/result
-- cmnd/TTGO
-
-### Commands - Message format
-
-- {"name":"mode","value":3}
-
-| Command     | Value | Reason            |
-| :---------- | :---- | :---------------- |
-| mode        | 0...6 | Select GUI        |
-| calibration | 1     | Start calibration |
 
 <br><br>
 
