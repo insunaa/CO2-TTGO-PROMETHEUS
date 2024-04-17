@@ -43,12 +43,13 @@ void myDHT::loop(float *temp, char *cValueTemp, float *humi, char *cValueHumi)
       Serial.print("%  Temperature: ");
       Serial.print(temp_dht);
       Serial.println("°C ");
-      *humi = humi_dht;
+      if (humi_dht != NAN && humi_dht != INFINITY)
+        *humi = humi_dht;
       dtostrf(humi_dht, 2, 0, cValueHumi); // 5 digits, no decimal
-      *temp = temp_dht;
+      if (temp_dht != NAN && temp_dht != INFINITY)
+        *temp = temp_dht;
       dtostrf(temp_dht, 5, 1, cValueTemp); // 5 digits, no decimal
       strcpy(statusChar, "DHT22-Sensor read out");
-      // }
     } else
     {
       humi_dht = 0;
