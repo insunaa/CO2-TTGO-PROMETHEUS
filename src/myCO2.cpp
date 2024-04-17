@@ -184,7 +184,12 @@ void myCO2::calibrateEnd(void)
 
 void myCO2::setCalibrationMode(CalibrationModes mode, std::chrono::hours interval)
 {
-  mhz19b.autoCalibration(static_cast<bool>(mode), static_cast<byte>(interval.count()));
+  switch (mode)
+  {
+    case CalibrationModes::ABC_ENABLED: mhz19b.autoCalibration(true, static_cast<byte>(interval.count())); break;
+    case CalibrationModes::ABC_DISABLED: mhz19b.autoCalibration(false); break;
+  }
+  
 }
 
 // ------------------------------------------------------------------------------------------------------------------------
