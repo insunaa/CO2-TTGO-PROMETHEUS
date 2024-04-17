@@ -152,10 +152,13 @@ void handleEvent(AceButton *button, uint8_t eventType, uint8_t buttonState)
     }
     else if (butPressed == BUTTON2_PIN)
     {
-      //Serial.printf("handleEvent> GUI for pin %d\n", butPressed);
-      //switch_mode(mode - 1);
+#ifndef MANUALCALIB
+      Serial.printf("handleEvent> GUI for pin %d\n", butPressed);
+      switch_mode(mode - 1);
+#else
       myCO2Sensor.calibrateStart();
       mode = States::ST_CALIBRATION;
+#endif
     }
     break;
   default:
@@ -183,6 +186,12 @@ void setup()
   myCO2Sensor.begin(sensorData.co2FWChar);
   myCO2Sensor.status(statusChar);
   myDisplay1.println(statusChar);
+
+#ifdef MANUALCALIB
+  myCO2Sensor.setCalibrationMode(myCO2::CalibrationModes::ABC_DISABLED);
+#else
+  myCO2Sensor.setCalibrationMode(myCO2::CalibrationModes::ABC_ENABLED, 24h);
+#endif
 
 #ifdef WAITFORWIFI
   myDisplay1.print("> WiFi ");

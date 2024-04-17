@@ -11,10 +11,10 @@
 // #include <SoftwareSerial.h>
 #include <MHZ19.h>
 #include "main.h"
+#include <chrono>
 
-#define LOOP_SECONDS_CO2 10
-#define SCAN_SECONDS_CO2 30
-#define CALIBRATE_SECONDS 40 // timeElapse = 12e5; //  20 minutes in milliseconds
+using namespace std::chrono_literals;
+
 // Nutzung der Schnittstelle UART2
 enum
 {
@@ -24,17 +24,26 @@ enum
   MHZ19_PROTOCOL = SERIAL_8N1,
   MHZ19_RANGE = 5000,
   MHZ19_PWM_PIN = 5,
+  LOOP_SECONDS_CO2 = 10,
+  SCAN_SECONDS_CO2 = 30,
+  CALIBRATE_SECONDS = 1200 // 20 Minutes in Seconds
 };
 
 class myCO2 // define class
 {
 public:
+  enum class CalibrationModes : bool
+  {
+    ABC_DISABLED = false,
+    ABC_ENABLED = true,
+  };
   myCO2(void); // constructor, which is used to create an instance of the class
   // void loop(int *iValue, char *cValue);
   void loop(sensor_data_struct *sData);
   void begin(char *cValue);
   void calibrateStart(void);
   void calibrateEnd(void);
+  void setCalibrationMode(CalibrationModes, std::chrono::hours interval = 24h);
   long calibrateTimer(void);
   void status(char *value);
   int value(void);

@@ -139,13 +139,12 @@ void myCO2::calibrateStart(void)
 {
   calibrateStartTime = millis();
 
-  // DEBUG mhz19b.autoCalibration(false); // make sure auto calibration is off
-  mhz19b.autoCalibration(false);
+  setCalibrationMode(CalibrationModes::ABC_DISABLED);
+
   Serial.print("ABC Status: ");
-  // DEBUG mhz19b.getABC() ? Serial.println("ON") : Serial.println("OFF"); // now print it's status
   mhz19b.getABC() ? Serial.println("ON") : Serial.println("OFF"); // now print it's status
 
-  //Serial.println("Waiting 20 minutes to stabalise...");
+  //Serial.println("Waiting 20 minutes to stabilize...");
   strcpy(statusChar, "CO2-Calibration started");
   mhz19bCalibration = true;
 } // end of function
@@ -178,10 +177,15 @@ long myCO2::calibrateTimer(void)
 void myCO2::calibrateEnd(void)
 {
   Serial.println("Calibrating..");
-  // DEBUG mhz19b.calibrate(); // Take a reading which be used as the zero point for 400 ppm
+  mhz19b.calibrate(); // Take a reading which be used as the zero point for 400 ppm
   strcpy(statusChar, "CO2-calibration done");
   mhz19bCalibration = false;
 } // end of function
+
+void myCO2::setCalibrationMode(CalibrationModes mode, std::chrono::hours interval)
+{
+  mhz19b.autoCalibration(static_cast<bool>(mode), static_cast<byte>(interval.count()));
+}
 
 // ------------------------------------------------------------------------------------------------------------------------
 /*
